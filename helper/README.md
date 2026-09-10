@@ -11,6 +11,10 @@ uv run transcript-helper
 
 这里的 Python 3.11 是由 `uv` 管理的隔离运行时，不要求系统预装 Python 3.11，也不会替换用户已有的 Python 3.12、3.13 或更高版本。
 
+若配置的下载代理在提取网页时触发 TLS 响应中断（UNEXPECTED_EOF_WHILE_READING），Helper 会自动改用直连重试一次；直连仍失败时保留原始错误。
+
+若配置的下载代理在提取网页时触发 TLS 响应中断（UNEXPECTED_EOF_WHILE_READING），Helper 会自动改用直连重试一次；直连仍失败时保留原始错误。
+
 YouTube 的完整格式解析还需要本机安装 Node.js。模型和 transcript 缓存默认位于 `~/.cache/obsidian-web-clipper-cn-transcript/`；任务音频及 Cookies 使用临时文件，任务结束后清理。
 
 ## 隐私边界

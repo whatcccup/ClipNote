@@ -204,6 +204,29 @@
 	}
 }
 
+#clip-save-status {
+	margin-top: 0.375rem;
+	padding: 0.5rem 0.625rem;
+	border-radius: var(--radius-s);
+	font-size: var(--font-ui-smaller);
+	line-height: 1.4;
+	overflow-wrap: anywhere;
+
+	&.is-processing {
+		color: var(--text-muted);
+		background-color: var(--background-secondary);
+	}
+
+	&.is-sent {
+		color: var(--text-success);
+		background-color: var(--background-modifier-success);
+	}
+
+	&.has-error {
+		color: var(--text-error);
+		background-color: var(--background-modifier-error);
+	}
+}
 .action-buttons {
 	display: flex;
 	align-items: center;
@@ -213,6 +236,15 @@
 	#clip-btn {
 		flex: 1;
 		cursor: default;
+
+		&:disabled {
+			cursor: wait;
+			opacity: 0.72;
+		}
+
+		&.save-status-sent {
+			background-color: var(--interactive-success);
+		}
 	}
 	#clip-btn:focus ~ .menu-btn #more-btn {
 		box-shadow: none;

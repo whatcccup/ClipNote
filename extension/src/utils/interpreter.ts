@@ -458,8 +458,8 @@ export async function initializeInterpreter(template: Template, variables: { [ke
 	}
 
 	if (template) {
-		// Only add click listener if auto-run is disabled
-		if (interpretBtn && !generalSettings.interpreterAutoRun) {
+		// Keep the button usable after auto-run so users can explicitly regenerate.
+		if (interpretBtn) {
 			const clickListener = async () => {
 				const selectedModelId = modelSelect.value;
 				const modelConfig = generalSettings.models.find(m => m.id === selectedModelId);
@@ -581,10 +581,9 @@ export async function handleInterpreterUI(
 		responseTimer.textContent = formatDuration(totalTime);
 
 		// Update button state
-		interpretBtn.textContent = getMessage('done').toLowerCase();
+		interpretBtn.textContent = getMessage('interpret');
 		interpretBtn.classList.remove('processing');
 		interpretBtn.classList.add('done');
-		interpretBtn.disabled = true;
 
 		// Add done class to container
 		interpreterContainer?.classList.add('done');
@@ -609,7 +608,6 @@ export async function handleInterpreterUI(
 		interpretBtn.textContent = getMessage('error');
 		interpretBtn.classList.remove('processing');
 		interpretBtn.classList.add('error');
-		interpretBtn.disabled = true;
 
 		// Add error class to interpreter container
 		interpreterContainer?.classList.add('error');

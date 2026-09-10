@@ -20,6 +20,30 @@
 	"addToObsidian": {
 		"message": "Add to Obsidian"
 	},
+	"clipSaveFailed": {
+		"message": "Add to Obsidian failed: $1",
+		"placeholders": {
+			"1": { "content": "$1" }
+		}
+	},
+	"clipSaveGenerating": {
+		"message": "Generating note..."
+	},
+	"clipSaveInterrupted": {
+		"message": "Last save did not finish. Please try again."
+	},
+	"clipSaveInterpreting": {
+		"message": "Interpreter is running..."
+	},
+	"clipSavePreparing": {
+		"message": "Preparing clip..."
+	},
+	"clipSaveSending": {
+		"message": "Opening Obsidian..."
+	},
+	"clipSaveSent": {
+		"message": "Sent to Obsidian. Click again to add an updated note."
+	},
 	"addVaultPlaceholder": {
 		"message": "Press enter to add a vault"
 	},

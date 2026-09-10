@@ -28,8 +28,21 @@ def download_audio(url: str, output_dir: Path, cookiefile: Path | None = None, p
         options["js_runtimes"] = {"node": {"path": node}}
         options["remote_components"] = ["ejs:github"]
 
-    with yt_dlp.YoutubeDL(options) as ydl:
-        ydl.extract_info(url, download=True)
+    try:
+        with yt_dlp.YoutubeDL(options) as ydl:
+            ydl.extract_info(url, download=True)
+    except yt_dlp.DownloadError as exc:
+        message = str(exc).upper()
+        if (
+            not proxy
+            or "UNABLE TO DOWNLOAD WEBPAGE" not in message
+            or "UNEXPECTED_EOF_WHILE_READING" not in message
+        ):
+            raise
+
+        options.pop("proxy", None)
+        with yt_dlp.YoutubeDL(options) as ydl:
+            ydl.extract_info(url, download=True)
 
     candidates = [path for path in output_dir.glob("audio.*") if path.is_file()]
     if not candidates:
