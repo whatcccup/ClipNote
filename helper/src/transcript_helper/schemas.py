@@ -37,6 +37,7 @@ class TranscriptionRequest(BaseModel):
     provider: Provider
     whisperModel: WhisperModelSize = "base"
     cookies: list[StoredCookie] = Field(default_factory=list)
+    proxy: str | None = None
 
 
 class TaskCreated(BaseModel):

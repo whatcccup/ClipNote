@@ -31,11 +31,19 @@ export async function initializeTranscriptGeneratorSettings(): Promise<void> {
 	const enabled = document.getElementById('transcript-generator-enabled') as HTMLInputElement;
 	const provider = document.getElementById('transcript-generator-provider') as HTMLSelectElement;
 	const model = document.getElementById('transcript-generator-whisper-model') as HTMLSelectElement;
+	const proxy = document.getElementById('transcript-generator-proxy') as HTMLInputElement;
 	const localControls = document.getElementById('transcript-generator-model-controls') as HTMLElement;
 	const remoteNotice = document.getElementById('transcript-generator-bcut-notice') as HTMLElement;
 	enabled.checked = settings.general.enabled;
 	provider.value = settings.asr.provider;
 	model.value = settings.asr.whisperModel;
+	proxy.value = settings.asr.proxy;
+
+	const currentAsrSettings = () => ({
+		provider: provider.value as 'bcut' | 'faster-whisper',
+		whisperModel: model.value as WhisperModelSize,
+		proxy: proxy.value.trim(),
+	});
 
 	const refreshProviderVisibility = () => {
 		const local = provider.value === 'faster-whisper';
@@ -46,10 +54,11 @@ export async function initializeTranscriptGeneratorSettings(): Promise<void> {
 
 	enabled.onchange = () => saveGeneralSettings({ enabled: enabled.checked });
 	provider.onchange = async () => {
-		await saveAsrSettings({ provider: provider.value as 'bcut' | 'faster-whisper', whisperModel: model.value as WhisperModelSize });
+		await saveAsrSettings(currentAsrSettings());
 		refreshProviderVisibility();
 	};
-	model.onchange = () => saveAsrSettings({ provider: provider.value as 'bcut' | 'faster-whisper', whisperModel: model.value as WhisperModelSize });
+	model.onchange = () => saveAsrSettings(currentAsrSettings());
+	proxy.onchange = () => saveAsrSettings(currentAsrSettings());
 
 	const connection = document.getElementById('transcript-generator-connection-status')!;
 	const renderRuntime = async () => {

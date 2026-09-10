@@ -12,8 +12,10 @@ SUPPORTED_AUDIO = {"flac", "aac", "m4a", "mp3", "wav"}
 
 
 class BcutClient:
-    def __init__(self, session: requests.Session | None = None) -> None:
+    def __init__(self, session: requests.Session | None = None, proxy: str | None = None) -> None:
         self.session = session or requests.Session()
+        if proxy:
+            self.session.proxies.update({"http": proxy, "https": proxy})
         self.session.headers.update(
             {
                 "User-Agent": "Bilibili/1.0.0 (https://www.bilibili.com)",

@@ -12,12 +12,22 @@ import urllib.request
 from pathlib import Path
 
 
-APP_DIR = (
-    Path.home()
-    / "Library"
-    / "Application Support"
-    / "ObsidianWebClipperCNTranscript"
-)
+def _default_app_dir() -> Path:
+    if sys.platform == "darwin":
+        return (
+            Path.home()
+            / "Library"
+            / "Application Support"
+            / "ObsidianWebClipperCNTranscript"
+        )
+    if os.name == "nt":
+        local_app_data = os.environ.get("LOCALAPPDATA")
+        base = Path(local_app_data) if local_app_data else Path.home() / "AppData" / "Local"
+        return base / "ObsidianWebClipperCNTranscript"
+    return Path.home() / ".local" / "share" / "ObsidianWebClipperCNTranscript"
+
+
+APP_DIR = _default_app_dir()
 CONFIG_PATH = APP_DIR / "config.json"
 SESSION_PATH = APP_DIR / "runtime" / "session.json"
 LOG_PATH = APP_DIR / "logs" / "helper.log"
@@ -46,6 +56,21 @@ def load_json(path: Path) -> dict:
 
 
 def process_alive(pid: int) -> bool:
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.windll.kernel32
+        process = kernel32.OpenProcess(0x1000, False, pid)
+        if not process:
+            return False
+        try:
+            exit_code = wintypes.DWORD()
+            if not kernel32.GetExitCodeProcess(process, ctypes.byref(exit_code)):
+                return False
+            return exit_code.value == 259  # STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(process)
     try:
         os.kill(pid, 0)
         return True
@@ -92,9 +117,21 @@ def start() -> dict:
     env = os.environ.copy()
     env["TRANSCRIPT_HELPER_TOKEN"] = token
     env["TRANSCRIPT_HELPER_IDLE_TIMEOUT"] = str(config.get("idleTimeoutSeconds", 900))
+    proxy = config.get("proxy")
+    if proxy:
+        env["HTTP_PROXY"] = proxy
+        env["HTTPS_PROXY"] = proxy
+        env["NO_PROXY"] = "127.0.0.1,localhost"
+    models_dir = config.get("modelsDir")
+    if models_dir:
+        env["TRANSCRIPT_HELPER_MODELS_DIR"] = models_dir
+    hf_cache_dir = config.get("hfCacheDir")
+    if hf_cache_dir:
+        env["HF_HUB_CACHE"] = hf_cache_dir
     node_dir = config.get("nodeDir")
     if node_dir:
-        env["PATH"] = f"{node_dir}:{env.get('PATH', '')}"
+        separator = ";" if os.name == "nt" else ":"
+        env["PATH"] = f"{node_dir}{separator}{env.get('PATH', '')}"
     APP_DIR.joinpath("runtime").mkdir(parents=True, exist_ok=True)
     APP_DIR.joinpath("logs").mkdir(parents=True, exist_ok=True)
     with LOG_PATH.open("ab") as log:

@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import tempfile
 import threading
 import uuid
@@ -15,7 +16,8 @@ from .schemas import TaskCreated, TaskStatus, TranscriptionRequest, TranscriptRe
 
 class TranscriptionService:
     def __init__(self, data_root: Path) -> None:
-        self.model_manager = WhisperModelManager(data_root / "models")
+        models_root = Path(os.environ["TRANSCRIPT_HELPER_MODELS_DIR"]) if os.environ.get("TRANSCRIPT_HELPER_MODELS_DIR") else data_root / "models"
+        self.model_manager = WhisperModelManager(models_root)
         self.cache_root = data_root / "transcripts"
         self.cache_root.mkdir(parents=True, exist_ok=True)
         self.tasks: dict[str, TaskStatus] = {}
@@ -59,11 +61,11 @@ class TranscriptionService:
                     cookiefile = root / "cookies.txt"
                     write_netscape_cookie_file(request.cookies, cookiefile)
                 self._update(task_id, status="downloading", stage="正在下载音频")
-                audio = download_audio(str(request.url), root, cookiefile)
+                audio = download_audio(str(request.url), root, cookiefile, proxy=request.proxy)
                 stage = "正在上传 BCut" if request.provider == "bcut" else "正在本地识别"
                 self._update(task_id, status="transcribing", stage=stage)
                 if request.provider == "bcut":
-                    result = BcutClient().transcribe(audio)
+                    result = BcutClient(proxy=request.proxy).transcribe(audio)
                 else:
                     result = self.model_manager.transcribe(audio, request.whisperModel)
                 cache_path.write_text(

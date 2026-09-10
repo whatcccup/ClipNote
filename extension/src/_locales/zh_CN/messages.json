@@ -20,6 +20,30 @@
 	"addToObsidian": {
 		"message": "添加到 Obsidian"
 	},
+	"clipSaveFailed": {
+		"message": "添加到 Obsidian 失败：$1",
+		"placeholders": {
+			"1": { "content": "$1" }
+		}
+	},
+	"clipSaveGenerating": {
+		"message": "正在生成笔记..."
+	},
+	"clipSaveInterrupted": {
+		"message": "上次保存未完成，请重试。"
+	},
+	"clipSaveInterpreting": {
+		"message": "正在运行解释器..."
+	},
+	"clipSavePreparing": {
+		"message": "正在准备剪藏..."
+	},
+	"clipSaveSending": {
+		"message": "正在打开 Obsidian..."
+	},
+	"clipSaveSent": {
+		"message": "已发送到 Obsidian。再次点击可保存更新后的笔记。"
+	},
 	"addVaultPlaceholder": {
 		"message": "按回车键添加保管库"
 	},

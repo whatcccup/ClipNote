@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 
-def download_audio(url: str, output_dir: Path, cookiefile: Path | None = None) -> Path:
+def download_audio(url: str, output_dir: Path, cookiefile: Path | None = None, proxy: str | None = None) -> Path:
     try:
         import yt_dlp
     except ImportError as exc:
@@ -21,13 +21,28 @@ def download_audio(url: str, output_dir: Path, cookiefile: Path | None = None) -
     }
     if cookiefile:
         options["cookiefile"] = str(cookiefile)
+    if proxy:
+        options["proxy"] = proxy
     node = shutil.which("node")
     if node:
         options["js_runtimes"] = {"node": {"path": node}}
         options["remote_components"] = ["ejs:github"]
 
-    with yt_dlp.YoutubeDL(options) as ydl:
-        ydl.extract_info(url, download=True)
+    try:
+        with yt_dlp.YoutubeDL(options) as ydl:
+            ydl.extract_info(url, download=True)
+    except yt_dlp.DownloadError as exc:
+        message = str(exc).upper()
+        if (
+            not proxy
+            or "UNABLE TO DOWNLOAD WEBPAGE" not in message
+            or "UNEXPECTED_EOF_WHILE_READING" not in message
+        ):
+            raise
+
+        options.pop("proxy", None)
+        with yt_dlp.YoutubeDL(options) as ydl:
+            ydl.extract_info(url, download=True)
 
     candidates = [path for path in output_dir.glob("audio.*") if path.is_file()]
     if not candidates:

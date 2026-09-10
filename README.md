@@ -5,7 +5,7 @@
 </p>
 
 > [!IMPORTANT]
-> 本项目仅支持 **macOS + Chrome/Chromium**。不支持 Windows 或 Linux，并且当前没有开发 Windows/Linux 版本的计划。
+> 本项目支持 **macOS 和 Windows**，浏览器要求 Chrome/Chromium。不支持 Linux。
 
 在 Obsidian Web Clipper CN 中补充无字幕视频的 transcript 生成能力。
 
@@ -104,9 +104,11 @@ Bilibili 和 YouTube 分别支持：
 obsidian-web-clipper-cn-transcript/
 ├── extension/   # Chrome 扩展源码；安装后在其中生成 dist/
 ├── helper/      # 下载、ASR、模型和缓存服务
-├── launcher/    # macOS Native Messaging 启动器
-├── install.sh   # 一键安装和覆盖安装
-└── update.sh    # Git 更新和覆盖安装
+├── launcher/    # Native Messaging 启动器
+├── install.sh   # macOS 一键安装和覆盖安装
+├── install.ps1  # Windows 一键安装和覆盖安装
+├── update.sh    # macOS Git 更新和覆盖安装
+└── update.ps1   # Windows Git 更新和覆盖安装
 ```
 
 ### 为什么 `extension` 下还有 `dist`
@@ -131,9 +133,9 @@ Helper 每次启动会生成临时会话令牌。扩展访问本地 API 时必�
 
 ## 安装与升级
 
-### 环境要求（仅支持 macOS）
+### 环境要求
 
-- macOS
+- macOS 或 Windows
 - Chrome 或其他 Chromium 浏览器
 - [Node.js](https://nodejs.org/) 18 或更高版本（安装 Node.js 时会同时提供 npm）
 - [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
@@ -156,6 +158,12 @@ brew install node uv
 ```
 
 如果不使用 Homebrew，请分别按照 [Node.js 官网](https://nodejs.org/)和 [`uv` 官方安装说明](https://docs.astral.sh/uv/getting-started/installation/)完成安装，再继续下面的步骤。
+
+Windows 用户也可以使用 `winget` 安装：
+
+```powershell
+winget install OpenJS.NodeJS astral-sh.uv
+```
 
 用户不需要预先安装 Python。`uv` 会在项目专用目录中准备隔离的 Python 3.11 运行时；电脑上已有更低或更高版本的 Python 都不会冲突，也不会被替换。这里固定 Helper 运行时，是为了让 Faster Whisper、CTranslate2 和下载依赖使用经过验证的一致环境。
 
@@ -182,11 +190,26 @@ cd obsidian-web-clipper-cn-transcript
 bash install.sh
 ```
 
+Windows 用户使用 PowerShell：
+
+```powershell
+git clone https://github.com/whatcccup/obsidian-web-clipper-cn-transcript.git
+cd obsidian-web-clipper-cn-transcript
+.\install.ps1
+```
+
 如果源码已经下载到电脑，请先进入实际文件夹。例如 GitHub 压缩包通常解压为 `obsidian-web-clipper-cn-transcript-main`：
 
 ```bash
 cd ~/Downloads/obsidian-web-clipper-cn-transcript-main
 bash install.sh
+```
+
+Windows 用户对应命令：
+
+```powershell
+cd $env:USERPROFILE\Downloads\obsidian-web-clipper-cn-transcript-main
+.\install.ps1
 ```
 
 脚本会完成以下操作：
@@ -195,7 +218,7 @@ bash install.sh
 - 从源码安装时构建 Chrome 扩展；Release 安装包直接使用预构建扩展
 - 安装按需 Helper 与 Native Messaging Host
 - 提供 Faster Whisper 模型选择菜单，可立即下载任一支持模型，也可以跳过并稍后在扩展设置页下载
-- 明确保证不创建 LaunchAgent
+- 明确保证不创建 LaunchAgent（macOS）或开机自启项（Windows）
 
 交互安装会提供 `tiny`、`base`、`small`、`medium`、`large-v3`、`large-v3-turbo` 和“跳过”选项，直接按回车默认下载 `tiny`。选择模型后会在 Helper 安装完成后开始下载；加载扩展后，需要在 `Settings → Transcript Generator` 中选择同一个模型。下载失败不会撤销已经完成的扩展和 Helper 安装，可以稍后在设置页重试。使用 `--yes` 执行无交互覆盖安装时默认跳过模型下载，也不会删除已经存在的模型。
 
@@ -212,6 +235,13 @@ cd /你的实际路径/obsidian-web-clipper-cn-transcript
 bash install.sh --yes
 ```
 
+Windows 用户：
+
+```powershell
+cd D:\你的实际路径\obsidian-web-clipper-cn-transcript
+.\install.ps1 -Yes
+```
+
 扩展构建产物位于：
 
 ```text
@@ -222,6 +252,12 @@ Helper 会安装到：
 
 ```text
 ~/Library/Application Support/ObsidianWebClipperCNTranscript/
+```
+
+Windows 对应路径：
+
+```text
+%LOCALAPPDATA%\ObsidianWebClipperCNTranscript\
 ```
 
 模型与 transcript 缓存位于：
@@ -238,11 +274,19 @@ Helper 会安装到：
 ~/Library/Application Support/Google/Chrome/NativeMessagingHosts/cn.transcript.generator.launcher.json
 ```
 
+Windows 通过注册表注册：
+
+```text
+HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\cn.transcript.generator.launcher
+```
+
 安装脚本明确不会创建：
 
 ```text
 ~/Library/LaunchAgents/
 ```
+
+Windows 上也不会创建计划任务或开机自启项。
 
 ### 3. 加载或重新加载扩展
 
@@ -258,6 +302,13 @@ Helper 会安装到：
 ```bash
 cd /你的实际路径/obsidian-web-clipper-cn-transcript
 bash update.sh
+```
+
+Windows 用户：
+
+```powershell
+cd D:\你的实际路径\obsidian-web-clipper-cn-transcript
+.\update.ps1
 ```
 
 脚本只接受 Git 的 fast-forward 更新，然后自动执行覆盖安装。完成后打开 `chrome://extensions`，在原扩展卡片上点击“重新加载”。浏览器中的 Transcript Generator 设置、Cookies、模板、本地 Whisper 模型和 transcript 缓存会保留。
@@ -296,6 +347,24 @@ Settings → Transcript Generator
 2. 选择 BCut 或 Faster Whisper。
 3. 如果选择 Faster Whisper，先下载模型。
 4. 按需要配置 Bilibili / YouTube Cookies。
+
+### 可选：代理与自定义路径
+
+**下载代理（推荐在设置页配置）**：`Settings → Transcript Generator → 下载代理` 留空表示直连；填写 `http://127.0.0.1:1001` 等地址后，仅当前字幕任务的音轨下载和 BCut 上传走代理，不影响其他流量。YouTube 出现 "Sign in to confirm you're not a bot" 时可配合 Cookies 使用。
+
+**Helper 级配置（config.json）**：以下可选手段写入 Helper 安装目录下的 `config.json`（macOS 位于 `~/Library/Application Support/ObsidianWebClipperCNTranscript/`，Windows 位于 `%LOCALAPPDATA%\ObsidianWebClipperCNTranscript\`），重启 Helper 后生效：
+
+```json
+{
+  "proxy": "http://127.0.0.1:1001",
+  "modelsDir": "D:\\PersonProgramData\\AI_Models\\transcript-models",
+  "hfCacheDir": "D:\\PersonProgramData\\AI_Models\\huggingface_cache"
+}
+```
+
+- `proxy`：Helper 全局兜底代理（含模型下载）。设置页的"下载代理"优先级更高，只影响单个任务。
+- `modelsDir`：Whisper 模型目录。已有 `tiny` 等模型文件夹时可直接指向其上级目录；也可以在其中创建同名 junction/软链接指向既有模型。
+- `hfCacheDir`：HuggingFace 缓存目录（`HF_HUB_CACHE`）。已有 `models--Systran--faster-whisper-*` 缓存时，模型下载会直接命中缓存，不再重复联网。
 
 ## 本地数据与隐私
 
@@ -351,7 +420,7 @@ uv run python -c "import transcript_helper.api"
 
 ## 已知限制
 
-- 本项目仅支持 macOS，不支持 Windows 或 Linux，当前没有开发其他桌面系统版本的计划。
+- 本项目支持 macOS 和 Windows，不支持 Linux，当前没有开发 Linux 版本的计划。
 - 当前源码安装仍依赖 Node.js 和 `uv`，还不是面向普通用户的零依赖安装包。
 - BCut 使用非官方公开接口，接口可能随必剪服务变化。
 - YouTube 下载能力依赖 `yt-dlp`，平台策略变化可能需要及时升级。

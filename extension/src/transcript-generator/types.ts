@@ -11,6 +11,7 @@ export interface TranscriptGeneratorGeneralSettings {
 export interface TranscriptGeneratorAsrSettings {
 	provider: TranscriptGeneratorProvider;
 	whisperModel: WhisperModelSize;
+	proxy: string;
 }
 
 export interface StoredCookie {

@@ -274,6 +274,10 @@
 									<div class="setting-item-info"><label for="transcript-generator-provider">转写器</label><div class="setting-item-description">失败时不会自动切换另一种转写器。</div></div>
 									<div class="setting-item-control"><select id="transcript-generator-provider"><option value="bcut">BCut 在线 ASR</option><option value="faster-whisper">Faster Whisper 本地 ASR</option></select></div>
 								</div>
+								<div class="setting-item mod-horizontal">
+									<div class="setting-item-info"><label for="transcript-generator-proxy">下载代理</label><div class="setting-item-description">留空表示直连。需要时填写 http://127.0.0.1:1001 等地址，仅对字幕任务的下载和上传生效。</div></div>
+									<div class="setting-item-control"><input type="text" id="transcript-generator-proxy" placeholder="http://127.0.0.1:1001" spellcheck="false"></div>
+								</div>
 								<div id="transcript-generator-bcut-notice" class="warning-container" hidden>
 									<span>BCut 使用必剪的非官方公开接口，无需填写 API Key。音频会上传至必剪；接口可能随平台调整而失效，也不会自动回退到本地模型。</span>
 									<div class="transcript-generator-inline"><button type="button" id="transcript-generator-bcut-test">测试 BCut 接口</button><span id="transcript-generator-bcut-status">尚未测试</span></div>

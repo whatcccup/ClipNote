@@ -49,7 +49,7 @@ export async function createTranscription(
 	const created = await request<{ task_id: string }>('/v1/transcriptions', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ url, provider: asr.provider, whisperModel: asr.whisperModel, cookies }),
+		body: JSON.stringify({ url, provider: asr.provider, whisperModel: asr.whisperModel, cookies, proxy: asr.proxy || undefined }),
 	});
 	return created.task_id;
 }

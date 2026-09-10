@@ -29,7 +29,7 @@ for arg in "$@"; do
 done
 
 if [ "$(uname -s)" != "Darwin" ]; then
-  echo "Error: the current installer only supports macOS." >&2
+  echo "Error: install.sh only supports macOS. On Windows, run install.ps1 with PowerShell instead." >&2
   exit 1
 fi
 

@@ -20,6 +20,7 @@ export const DEFAULT_GENERAL_SETTINGS: TranscriptGeneratorGeneralSettings = {
 export const DEFAULT_ASR_SETTINGS: TranscriptGeneratorAsrSettings = {
 	provider: 'faster-whisper',
 	whisperModel: 'tiny',
+	proxy: '',
 };
 
 const emptyPlatformConfig = (): PlatformCookieConfig => ({
